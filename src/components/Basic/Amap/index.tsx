@@ -1,9 +1,31 @@
 import React, {useEffect, useState} from 'react';
 import {SearchOutlined} from '@ant-design/icons';
-import {Map, APILoader, ToolBarControl, Marker} from '@uiw/react-amap';
+import {Map, APILoader, ToolBarControl, Marker, useMapContext} from '@uiw/react-amap';
 import {Modal, Select, Spin} from 'antd';
 
 import styles from './index.less';
+
+const AmapMap = Map as React.ComponentType<any>;
+const AmapToolBarControl = ToolBarControl as React.ComponentType<any>;
+const AmapMarker = Marker as React.ComponentType<any>;
+
+const MapClickBinder: React.FC<{ onSubmit: (event: any) => void }> = ({onSubmit}) => {
+  const {map} = useMapContext();
+
+  useEffect(() => {
+    if (!map) {
+      return;
+    }
+
+    map.on('click', onSubmit);
+
+    return () => {
+      map.off('click', onSubmit);
+    };
+  }, [map, onSubmit]);
+
+  return null;
+};
 
 const Amap: React.FC<APIAmap.Props> = (props) => {
 
@@ -42,13 +64,19 @@ const Amap: React.FC<APIAmap.Props> = (props) => {
     const callSearchService = () => {
       if (search) {
         setLoading(true);
-        AMap.plugin(['AMap.AutoComplete'], () => {
+        const AMapInstance = (window as Window & {AMap?: any}).AMap;
+        if (!AMapInstance) {
+          setLoading(false);
+          return;
+        }
+
+        AMapInstance.plugin(['AMap.AutoComplete'], () => {
           // 实例化AutoComplete
-          const autoComplete = new AMap.AutoComplete({
+          const autoComplete = new AMapInstance.AutoComplete({
             city: '全国',
           });
           // 根据关键字进行搜索
-          autoComplete.search(search, (status, result: any) => {
+          autoComplete.search(search, (status: string, result: any) => {
             // 搜索成功时，result即是对应的匹配数据
             if (status === 'complete') {
               setResponse(result.tips);
@@ -78,7 +106,7 @@ const Amap: React.FC<APIAmap.Props> = (props) => {
     >
       <Spin spinning={loading}>
         <div style={{width: '100%', height: '360px'}}>
-          <APILoader akay="363e1eb866314aefb8bdbf3c46746367">
+          <APILoader akey="363e1eb866314aefb8bdbf3c46746367">
             <div className={styles.search}>
               <Select
                 showSearch
@@ -101,23 +129,25 @@ const Amap: React.FC<APIAmap.Props> = (props) => {
                 }
               </Select>
             </div>
-            <Map onClick={onSubmit}
-                 center={props.longitude && props.latitude ?
-                   [props.longitude, props.latitude] :
-                   undefined
-                 }>
-              {({AMap}) => {
+            <AmapMap
+              center={props.longitude && props.latitude ?
+                [props.longitude, props.latitude] :
+                undefined
+              }
+            >
+              {({AMap}: {AMap: any}) => {
                 return (
                   <>
-                    <ToolBarControl offset={[10, 10]} position="RT"/>
+                    <MapClickBinder onSubmit={onSubmit} />
+                    <AmapToolBarControl offset={[10, 10]} position="RT"/>
                     {
                       props.latitude && props.longitude &&
-                      <Marker position={new AMap.LngLat(props.longitude, props.latitude)}/>
+                      <AmapMarker Position={new AMap.LngLat(props.longitude, props.latitude)}/>
                     }
                   </>
                 )
               }}
-            </Map>
+            </AmapMap>
           </APILoader>
         </div>
       </Spin>
