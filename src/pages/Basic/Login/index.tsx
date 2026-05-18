@@ -1,5 +1,5 @@
 import {useEffect, useState} from "react";
-import {Alert, Button, Col, Form, Input, Row} from "antd";
+import {Alert, Button, Col, Divider, Form, Input, Row, Space, Tag, Typography} from "antd";
 import {LockOutlined, UserOutlined} from "@ant-design/icons";
 import {useModel, history} from "@umijs/max";
 import Constants from '@/utils/Constants';
@@ -101,56 +101,94 @@ const Login = () => {
 
   return (
     <div className={styles.container}>
-      <Row justify="center">
-        <Col md={18} sm={16} xs={20} className={styles.box}>
+      <div className={styles.gridGlow}/>
+      <Row justify="center" className={styles.stage}>
+        <Col md={20} lg={18} xl={17} className={styles.box}>
           <Row className={styles.login}>
-            <Col sm={0} md={0} lg={14} className={styles.left}>
-              <img src={leftLogin} className={styles.image} alt="" width="100%"/>
+            <Col sm={0} md={0} lg={13} className={styles.left}>
+              <div className={styles.leftPanel}>
+                <div className={styles.leftBadge}>
+                  <Tag color="processing">Pro V6 Shell</Tag>
+                  <span>Admin Platform</span>
+                </div>
+                <Typography.Title level={2} className={styles.heroTitle}>
+                  让后台入口更像一个完整的产品界面
+                </Typography.Title>
+                <Typography.Paragraph className={styles.heroCopy}>
+                  统一的壳层、清晰的导航和稳定的权限模型，把常见管理后台该有的秩序感先搭起来。
+                </Typography.Paragraph>
+                <div className={styles.heroImageWrap}>
+                  <img src={leftLogin} className={styles.image} alt=""/>
+                </div>
+                <div className={styles.heroStats}>
+                  <div>
+                    <strong>Shell</strong>
+                    <span>布局已整理</span>
+                  </div>
+                  <Divider type="vertical" className={styles.heroDivider}/>
+                  <div>
+                    <strong>Access</strong>
+                    <span>权限链路稳定</span>
+                  </div>
+                  <Divider type="vertical" className={styles.heroDivider}/>
+                  <div>
+                    <strong>Routes</strong>
+                    <span>路径保持兼容</span>
+                  </div>
+                </div>
+              </div>
             </Col>
-            <Col lg={10} md={24} sm={24} className={styles.right}>
-              <Row>
-                <Col xs={24}>
-                  <h2 className={styles.title}>登录</h2>
-                  {result.result ? (
-                    <Alert className={styles.tips} type={result.result} message={result.message} showIcon/>
-                  ) : (
-                    <p className={styles.summary}>综合后台管理系统</p>
-                  )}
-                </Col>
-                <Col xs={24}>
-                  <Form form={former} onFinish={onSubmit} labelCol={{span: 0}}>
-                    <Form.Item
-                      name="username"
-                      validateFirst
-                      rules={[
-                        {required: true, message: '请输入您的用户名！'},
-                        {
-                          pattern: new RegExp(Pattern.ADMIN_USERNAME),
-                          message: '用户名输入错误！',
-                        },
-                      ]}
-                    >
-                      <Input prefix={<UserOutlined/>} placeholder="Username"/>
-                    </Form.Item>
-                    <Form.Item
-                      name="password"
-                      validateFirst
-                      rules={[
-                        {required: true, message: '请输入您的登录密码！'},
-                        {
-                          pattern: new RegExp(Pattern.ADMIN_PASSWORD),
-                          message: '密码输入错误！',
-                        },
-                      ]}
-                    >
-                      <Input.Password prefix={<LockOutlined/>} placeholder="Password"/>
-                    </Form.Item>
-                    <Button type="primary" htmlType="submit" block loading={loading}>
-                      立即登录
-                    </Button>
-                  </Form>
-                </Col>
-              </Row>
+            <Col lg={11} md={24} sm={24} className={styles.right}>
+              <div className={styles.panel}>
+                <Space direction="vertical" size={8} className={styles.headerBlock}>
+                  <Tag className={styles.kicker}>后台管理系统</Tag>
+                  <Typography.Title level={2} className={styles.title}>
+                    登录
+                  </Typography.Title>
+                  <Typography.Paragraph className={styles.summary}>
+                    综合后台管理系统
+                  </Typography.Paragraph>
+                </Space>
+                {result.result ? (
+                  <Alert className={styles.tips} type={result.result} message={result.message} showIcon/>
+                ) : null}
+                <Form form={former} onFinish={onSubmit} labelCol={{span: 0}} className={styles.form}>
+                  <Form.Item
+                    name="username"
+                    validateFirst
+                    rules={[
+                      {required: true, message: '请输入您的用户名！'},
+                      {
+                        pattern: new RegExp(Pattern.ADMIN_USERNAME),
+                        message: '用户名输入错误！',
+                      },
+                    ]}
+                  >
+                    <Input size="large" prefix={<UserOutlined/>} placeholder="Username" autoComplete="username"/>
+                  </Form.Item>
+                  <Form.Item
+                    name="password"
+                    validateFirst
+                    rules={[
+                      {required: true, message: '请输入您的登录密码！'},
+                      {
+                        pattern: new RegExp(Pattern.ADMIN_PASSWORD),
+                        message: '密码输入错误！',
+                      },
+                    ]}
+                  >
+                    <Input.Password
+                      size="large"
+                      prefix={<LockOutlined/>}
+                      placeholder="Password"
+                      autoComplete="current-password"
+                    />
+                  </Form.Item>
+                  <Button type="primary" htmlType="submit" block loading={loading} size="large" className={styles.submit}>
+                    立即登录
+                  </Button>
+                </Form>
+              </div>
             </Col>
           </Row>
         </Col>
