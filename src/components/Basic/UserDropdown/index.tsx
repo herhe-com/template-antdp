@@ -1,17 +1,17 @@
-import React, {useState} from "react";
-import {history, useModel} from "umi";
-import {Dropdown, Modal, notification, Spin} from "antd";
-import {LogoutOutlined, UserOutlined} from "@ant-design/icons";
-import Profile from "./Profile";
-import {MenuInfo} from "rc-menu/lib/interface";
-import {doBasicLogout} from "@/services/basic";
-import Constants from "@/utils/Constants";
-import {stringify} from "querystring";
+import React, {useState} from 'react';
+import {history, useModel} from 'umi';
+import {Avatar, Dropdown, Modal, notification, Spin, Space, Typography} from 'antd';
+import {LogoutOutlined, UserOutlined} from '@ant-design/icons';
+import Profile from './Profile';
+import {MenuInfo} from 'rc-menu/lib/interface';
+import {doBasicLogout} from '@/services/basic';
+import Constants from '@/utils/Constants';
+import {stringify} from 'querystring';
 
 export default function UserDropdown() {
 
   const {initialState, setInitialState} = useModel('@@initialState');
-  
+
   if (!initialState || !initialState.account) {
     return (<Spin size='small'/>)
   }
@@ -36,11 +36,11 @@ export default function UserDropdown() {
 
           localStorage.clear();
 
-          if (location.pathname !== Constants.Login) {
+          if (history.location.pathname !== Constants.Login) {
             history.replace({
               pathname: '/login',
               search: stringify({
-                redirect: location.pathname,
+                redirect: history.location.pathname,
               }),
             });
           }
@@ -96,7 +96,10 @@ export default function UserDropdown() {
           onClick: onMenu,
         }}
       >
-        <span>{initialState?.account?.nickname}</span>
+        <Space size={8} style={{cursor: 'pointer'}}>
+          <Avatar size={24} icon={<UserOutlined/>}/>
+          <Typography.Text strong>{initialState?.account?.nickname}</Typography.Text>
+        </Space>
       </Dropdown>
       <Profile open={open.profile} onClose={onCancel}/>
     </>
