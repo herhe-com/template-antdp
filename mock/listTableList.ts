@@ -124,6 +124,7 @@ function postRule(req: Request, res: Response, u: string, b: Request) {
         const i = Math.ceil(Math.random() * 10000);
         const newRule: API.RuleListItem = {
           key: tableListDataSource.length,
+          disabled: false,
           href: 'https://ant.design',
           avatar: [
             'https://gw.alipayobjects.com/zos/rmsportal/eeHMaZBwmTvLdIwMfBpg.png',
