@@ -9,6 +9,7 @@ import UserDropdown from "@/components/Basic/UserDropdown";
 import Footer from '@/components/Basic/Footer';
 import {doBasicAccount, doBasicModules, doBasicPermissions} from "@/services/basic";
 import Constants from '@/utils/Constants';
+import {buildPermissionMap, resolveModuleFromPathname} from '@/utils/bootstrap';
 import 'dayjs/locale/zh-cn';
 
 /**
@@ -52,21 +53,7 @@ export async function getInitialState(): Promise<{
         history.push(Constants.Forbidden)
       } else {
 
-        const paths = pathname.split('/');
-
-        let slug = modules.data[0].code;
-
-        if (paths.length >= 2) {
-          modules.data.forEach(item => {
-            if (item.code === paths[1]) {
-              slug = item.code;
-            }
-          });
-        }
-
-        if (slug == '') {
-          slug = modules.data[0].code
-        }
+        const slug = resolveModuleFromPathname(pathname, modules.data);
 
         const permissions = await doBasicPermissions(slug);
 
@@ -74,18 +61,12 @@ export async function getInitialState(): Promise<{
           history.push(Constants.Forbidden)
         } else {
 
-          const permission: Record<string, string> = {};
-
-          if (permissions.data) {
-            permissions.data.forEach(item => permission[item] = item);
-          }
-
           return {
             toAccount,
             module: slug,
             modules: modules.data,
             account,
-            permissions: permission,
+            permissions: buildPermissionMap(permissions.data || []),
             settings: defaultSettings
           };
         }
