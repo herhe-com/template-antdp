@@ -1,79 +1,91 @@
 import React from 'react';
-import {Settings as LayoutSettings} from '@ant-design/pro-components';
-import {history, RunTimeLayoutConfig} from '@umijs/max';
+import { Settings as LayoutSettings } from '@ant-design/pro-components';
+import { history, RunTimeLayoutConfig } from '@umijs/max';
 import defaultSettings from '../config/defaultSettings';
-import {errorConfig} from './requestErrorConfig';
-import {RequestOptionsInit} from "umi-request";
-import Navigation from "@/components/Basic/Navigation";
-import UserDropdown from "@/components/Basic/UserDropdown";
+import { errorConfig } from './requestErrorConfig';
+import { RequestOptionsInit } from 'umi-request';
+import Navigation from '@/components/Basic/Navigation';
+import UserDropdown from '@/components/Basic/UserDropdown';
 import Footer from '@/components/Basic/Footer';
-import {doBasicAccount, doBasicModules, doBasicPermissions} from "@/services/basic";
+import { doBasicAccount, doBasicModules, doBasicPermissions } from '@/services/basic';
 import Constants from '@/utils/Constants';
-import {buildPermissionMap, resolveModuleFromPathname} from '@/utils/bootstrap';
+import { buildPermissionMap, resolveModuleFromPathname } from '@/utils/bootstrap';
 import 'dayjs/locale/zh-cn';
+import { ConfigProvider } from 'antd';
+
+export function rootContainer(container: React.ReactNode) {
+  return (
+    <ConfigProvider
+      modal={{
+        centered: true,
+        mask: {
+          blur: true,
+          closable: false,
+        },
+      }}
+    >
+      {container}
+    </ConfigProvider>
+  );
+}
 
 /**
  * @see  https://umijs.org/zh-CN/plugins/plugin-initial-state
  * */
 export async function getInitialState(): Promise<{
   module?: string;
-  modules?: APIBasic.doBasicModules[],
+  modules?: APIBasic.doBasicModules[];
   account?: APIBasic.doBasicAccount;
   permissions?: Record<string, string>;
   toAccount?: () => Promise<APIBasic.doBasicAccount | undefined>;
   settings?: Partial<LayoutSettings>;
+  theme?: 'realDark' | 'light';
 }> {
-
   const toAccount = async () => {
     try {
       const response = await doBasicAccount();
-      if (response.code == Constants.Success) return response.data;
+      if (response.code === Constants.Success) return response.data;
     } catch (error) {
       history.push(Constants.Login);
     }
     return undefined;
   };
 
-
-  const pathname = history.location.pathname
+  const pathname = history.location.pathname;
 
   // 如果不是登录页面，执行
 
   if (pathname !== Constants.Login) {
-
     const account = await toAccount();
 
     if (!account) {
-      history.push(Constants.Forbidden)
+      history.push(Constants.Forbidden);
     } else {
-
       const modules = await doBasicModules();
 
-      if (modules.code != Constants.Success || modules.data.length <= 0) {
-        history.push(Constants.Forbidden)
+      if (modules.code !== Constants.Success || modules.data.length <= 0) {
+        history.push(Constants.Forbidden);
       } else {
-
         const slug = resolveModuleFromPathname(pathname, modules.data);
 
         const permissions = await doBasicPermissions(slug);
 
-        if (permissions.code != Constants.Success || permissions.data.length <= 0) {
-          history.push(Constants.Forbidden)
+        if (permissions.code !== Constants.Success || permissions.data.length <= 0) {
+          history.push(Constants.Forbidden);
         } else {
-
           return {
             toAccount,
             module: slug,
             modules: modules.data,
             account,
             permissions: buildPermissionMap(permissions.data || []),
-            settings: defaultSettings
+            settings: defaultSettings,
           };
         }
       }
     }
 
-    return {toAccount, account, settings: defaultSettings};
+    return { toAccount, account, settings: defaultSettings };
   }
 
   return {
@@ -83,14 +95,14 @@ export async function getInitialState(): Promise<{
 }
 
 // ProLayout 支持的api https://procomponents.ant.design/components/layout
-export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => {
+export const layout: RunTimeLayoutConfig = ({ initialState }) => {
   return {
     logo: false,
-    headerContentRender: () => initialState?.account && <Navigation/>,
-    rightContentRender: () => <UserDropdown/>,
-    footerRender: () => <Footer/>,
+    headerContentRender: () => initialState?.account && <Navigation />,
+    actionsRender: () => [<UserDropdown key="user-dropdown" />],
+    footerRender: () => <Footer />,
     onPageChange: () => {
-      const {location} = history;
+      const { location } = history;
       // 如果没有登录，重定向到 login
       if (!initialState?.account && location.pathname !== Constants.Login) {
         history.push(Constants.Login);
@@ -103,32 +115,30 @@ export const layout: RunTimeLayoutConfig = ({initialState, setInitialState}) => 
 };
 
 const AuthHeaderInterceptor = (url: string, options: RequestOptionsInit) => {
-
   const Authorization = localStorage.getItem(Constants.Authorization);
 
   let headers = {};
 
   if (Authorization && Authorization !== '') {
-    headers = {Authorization: Authorization};
+    headers = { Authorization: Authorization };
   }
 
   return {
     url: `${url}`,
-    options: {...options, interceptors: true, headers},
+    options: { ...options, interceptors: true, headers },
   };
 };
 
-const RefreshResponse = (response: any, options: RequestOptionsInit) => {
-
-  let token = ''
+const RefreshResponse = (response: any) => {
+  let token = '';
 
   try {
-    token = response.headers.get(Constants.Authorization)
+    token = response.headers.get(Constants.Authorization);
   } catch (e) {
     token = response.headers[Constants.Authorization.toLowerCase()];
   }
 
-  if (token && token != localStorage.getItem(Constants.Authorization)) {
+  if (token && token !== localStorage.getItem(Constants.Authorization)) {
     localStorage.setItem(Constants.Authorization, token);
   }
 
