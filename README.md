@@ -7,13 +7,7 @@ This project is initialized with [Ant Design Pro](https://pro.ant.design). Follo
 Install `node_modules`:
 
 ```bash
-npm install
-```
-
-or
-
-```bash
-yarn
+bun install
 ```
 
 ## Provided Scripts
@@ -25,31 +19,31 @@ Scripts provided in `package.json`. It's safe to modify or add additional script
 ### Start project
 
 ```bash
-npm start
+bun run start
 ```
 
 ### Build project
 
 ```bash
-npm run build
+bun run build
 ```
 
 ### Check code style
 
 ```bash
-npm run lint
+bun run lint
 ```
 
 You can also use script to auto fix some lint error:
 
 ```bash
-npm run lint:fix
+bun run lint:fix
 ```
 
 ### Test code
 
 ```bash
-npm test
+bun run test
 ```
 
 ## More
