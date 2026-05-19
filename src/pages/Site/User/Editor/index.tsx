@@ -127,11 +127,7 @@ const Editor: React.FC<APISiteAdmin.Props> = (props) => {
     <Modal
       title={props.params ? '编辑' : '创建'}
       open={props.visible}
-      centered
       onOk={former.submit}
-      mask={{
-        closable: false,
-      }}
       onCancel={props.onCancel}
       confirmLoading={loading.confirmed}
     >

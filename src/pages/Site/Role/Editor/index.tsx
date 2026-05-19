@@ -90,7 +90,7 @@ const Editor = (props: APISiteRole.Props) => {
 
     doSiteRoleOfInformation(props.params?.id)
       .then((response) => {
-        if (response.code != Constants.Success) {
+        if (response.code !== Constants.Success) {
           notification.error({ message: response.message });
           props.onCancel?.();
         } else {
@@ -127,9 +127,7 @@ const Editor = (props: APISiteRole.Props) => {
     <Modal
       title={props.params ? '编辑' : '创建'}
       open={props.visible}
-      centered
       onOk={former.submit}
-      mask={{ closable: false }}
       onCancel={props.onCancel}
       confirmLoading={loading.confirmed}
     >
